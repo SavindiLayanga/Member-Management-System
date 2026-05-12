@@ -1,0 +1,19 @@
+{
+  "name": "member-management-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Professional member management system",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.0",
+    "sqlite3": "^5.1.7",
+    "xlsx": "^0.18.5"
+  }
+}

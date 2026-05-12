@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Member management system with auth, search, and exports" />
+    <title>Member Management System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="auth-shell" class="auth-shell">
+      <div class="auth-card">
+        <h1>Member Management System</h1>
+        <p class="muted">Sign in to continue</p>
+        <form id="login-form" class="auth-form">
+          <label>Username <input id="login-username" required value="admin" /></label>
+          <label>Password <input id="login-password" required type="password" value="admin123" /></label>
+          <button type="submit">Login</button>
+        </form>
+        <p class="helper">Demo users: `admin/admin123` and `viewer/viewer123`</p>
+      </div>
+    </div>
+
+    <div class="app hidden" id="app-shell">
+      <aside class="sidebar">
+        <h1>Member Management</h1>
+        <p id="user-badge" class="user-badge"></p>
+        <nav>
+          <button class="nav-btn active role-admin" data-view="dashboard">Admin Dashboard</button>
+          <button class="nav-btn role-admin" data-view="members">Members</button>
+          <button class="nav-btn role-admin" data-view="fees">Fees</button>
+          <button class="nav-btn role-admin" data-view="payments">Payments</button>
+          <button class="nav-btn role-admin" data-view="reports">Reports</button>
+          <button class="nav-btn role-admin" data-view="logs">Activity Logs</button>
+          <button class="nav-btn role-admin" data-view="general">General</button>
+          <button class="nav-btn role-admin" data-view="browse">Browse / Reference</button>
+          <button class="nav-btn role-user" data-view="user-home">User Home</button>
+          <button class="nav-btn role-user" data-view="user-profile-portal">My Profile</button>
+          <button class="nav-btn role-user" data-view="user-payments">My Payments</button>
+          <button class="nav-btn role-user" data-view="user-announcements">Announcements & Events</button>
+          <button class="nav-btn role-user" data-view="user-directory">Member Directory</button>
+          <button class="nav-btn role-user" data-view="user-requests">My Requests</button>
+        </nav>
+        <button id="logout-btn" class="secondary logout">Logout</button>
+      </aside>
+
+      <main class="content">
+        <div class="content-topbar">
+          <div class="dashboard-tools">
+            <button id="quick-profile-btn" class="icon-btn" title="Profile">👤</button>
+            <button id="quick-settings-btn" class="icon-btn" title="Settings">⚙️</button>
+          </div>
+        </div>
+        <section id="dashboard" class="view active">
+          <h2>Dashboard</h2>
+          <div class="stats">
+            <article class="card">
+              <h3>Total Members</h3>
+              <p id="stat-total-members">0</p>
+            </article>
+            <article class="card">
+              <h3>Current Teachers</h3>
+              <p id="stat-current-teachers">0</p>
+            </article>
+            <article class="card">
+              <h3>Batches</h3>
+              <p id="stat-batches">0</p>
+            </article>
+            <article class="card">
+              <h3>Fee Records</h3>
+              <p id="stat-fees">0</p>
+            </article>
+            <article class="card">
+              <h3>Payments</h3>
+              <p id="stat-payments">0</p>
+            </article>
+          </div>
+          <div class="top-actions">
+            <button id="export-csv">Export Members CSV</button>
+            <button id="export-xlsx" class="secondary">Export Members Excel</button>
+            <button id="export-pdf" class="secondary">Export Members PDF</button>
+            <button id="export-print" class="secondary">Print Current View (PDF)</button>
+          </div>
+        </section>
+        <section id="user-home" class="view">
+          <h2>User Dashboard</h2>
+          <div class="stats">
+            <article class="card">
+              <h3>My Role</h3>
+              <p id="user-stat-role">-</p>
+            </article>
+            <article class="card">
+              <h3>Total Members</h3>
+              <p id="user-stat-members">0</p>
+            </article>
+            <article class="card">
+              <h3>Open Requests</h3>
+              <p id="user-stat-requests">0</p>
+            </article>
+          </div>
+          <div class="general-grid">
+            <article class="card">
+              <h3>Pending Fee Balance</h3>
+              <p id="user-pending-balance">0</p>
+            </article>
+            <article class="card">
+              <h3>Membership Certificate</h3>
+              <button id="download-certificate-btn" type="button">Download Certificate PDF</button>
+            </article>
+          </div>
+        </section>
+        <section id="user-profile-portal" class="view">
+          <h2>My Member Profile</h2>
+          <div class="table-wrap">
+            <table>
+              <tbody id="user-profile-table"></tbody>
+            </table>
+          </div>
+          <form id="profile-update-request-form" class="form-grid">
+            <label>Requested Full Name <input id="request-full-name" /></label>
+            <label>Requested Email <input id="request-email" type="email" /></label>
+            <label>Requested Phone <input id="request-phone" /></label>
+            <label>Message <textarea id="request-message"></textarea></label>
+            <div class="form-actions">
+              <button type="submit">Submit Profile Update Request</button>
+            </div>
+          </form>
+          <form id="member-document-upload-form" class="form-grid">
+            <label>Document Type
+              <select id="member-document-type">
+                <option value="identity">Identity</option>
+                <option value="qualification">Qualification</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label>Upload Document <input id="member-document-file" type="file" required /></label>
+            <div class="form-actions">
+              <button type="submit">Upload Document</button>
+            </div>
+          </form>
+        </section>
+        <section id="user-payments" class="view">
+          <h2>Payment History</h2>
+          <div class="table-wrap">
+            <table id="user-payments-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="user-announcements" class="view">
+          <h2>Announcements & Events</h2>
+          <div class="general-grid">
+            <article class="card">
+              <h3>Announcements</h3>
+              <ul id="user-announcements-list"></ul>
+            </article>
+            <article class="card">
+              <h3>Events</h3>
+              <ul id="user-events-list"></ul>
+            </article>
+          </div>
+        </section>
+        <section id="user-directory" class="view">
+          <h2>Member Directory</h2>
+          <form id="user-directory-form" class="browse-grid">
+            <label>Keyword
+              <input id="user-directory-keyword" placeholder="Name, membership no, workplace" />
+            </label>
+            <label>Country
+              <input id="user-directory-country" placeholder="Australia" />
+            </label>
+            <button type="submit">Search</button>
+            <button type="button" id="user-directory-reset" class="secondary">Reset</button>
+          </form>
+          <div class="table-wrap">
+            <table id="user-directory-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Membership No</th>
+                  <th>Workplace</th>
+                  <th>Countries</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+        <section id="user-requests" class="view">
+          <h2>My Requests</h2>
+          <form id="user-request-form" class="form-grid">
+            <label>Subject <input id="user-request-subject" required /></label>
+            <label>Message <textarea id="user-request-message" required></textarea></label>
+            <div class="form-actions">
+              <button type="submit">Send Request</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table id="user-requests-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="members" class="view">
+          <h2>Individual (Member) Menu</h2>
+          <form id="member-form" class="form-grid">
+            <input type="hidden" id="member-id" />
+
+            <label>Name <input id="name" required /></label>
+            <label>Membership No. <input id="membershipNo" required /></label>
+            <label>National Identity Card No. <input id="nicNo" required /></label>
+            <label>Date of Birth <input id="dob" type="date" /></label>
+            <label>Permanent Address <textarea id="permanentAddress"></textarea></label>
+            <label>Postal Address <textarea id="postalAddress"></textarea></label>
+            <label>E-Mail Address <input id="email" type="email" /></label>
+            <label>Office Telephone No. <input id="officeTelephone" /></label>
+            <label>Residence Telephone No. <input id="residenceTelephone" /></label>
+            <label>Mobile Telephone No. <input id="mobileTelephone" /></label>
+            <label>Year of Qualification <input id="yearOfQualification" type="number" /></label>
+            <label>Certificate No. <input id="certificateNo" /></label>
+            <label>Place of Work <input id="placeOfWork" /></label>
+            <label>Details of Higher Studies <textarea id="higherStudies"></textarea></label>
+            <label>Details of Professional Studies <textarea id="professionalStudies"></textarea></label>
+            <label>Literary Contributions Made <textarea id="literaryContributions"></textarea></label>
+            <label>Social Service Involved in <textarea id="socialService"></textarea></label>
+            <label>Countries Visited (comma separated) <input id="countriesVisited" placeholder="Australia, India" /></label>
+            <label>Conferences Attended (comma separated) <input id="conferencesAttended" /></label>
+            <label>Awards Received (comma separated) <input id="awardsReceived" /></label>
+            <label>Batch Year <input id="batchYear" type="number" /></label>
+            <label>Teaching College <input id="teachingCollege" placeholder="AAA College" /></label>
+            <label>District <input id="district" placeholder="Kandy" /></label>
+            <label>Photo <input id="memberPhoto" type="file" accept="image/*" /></label>
+            <label>Document <input id="memberDocument" type="file" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" /></label>
+            <label>Teaching Status
+              <select id="teachingStatus">
+                <option value="">-- Select --</option>
+                <option value="taught_before">Taught at College (own college)</option>
+                <option value="currently_teaching">Teaching at College (own college)</option>
+              </select>
+            </label>
+
+            <div class="form-actions">
+              <button type="submit">Save Member</button>
+              <button id="clear-member-form" type="button" class="secondary">Clear</button>
+            </div>
+          </form>
+
+          <h3>Member List</h3>
+          <div class="table-wrap">
+            <table id="member-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Membership No</th>
+                  <th>NIC</th>
+                  <th>Photo</th>
+                  <th>Document</th>
+                  <th>Batch</th>
+                  <th>Workplace</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="payments" class="view">
+          <h2>Payment History & Receipt</h2>
+          <form id="payment-form" class="form-grid">
+            <label>Member
+              <select id="payment-member-id" required></select>
+            </label>
+            <label>Amount <input id="payment-amount" type="number" min="0" required /></label>
+            <label>Payment Date <input id="payment-date" type="date" required /></label>
+            <label>Method
+              <select id="payment-method">
+                <option value="cash">Cash</option>
+                <option value="bank">Bank Transfer</option>
+                <option value="online">Online</option>
+              </select>
+            </label>
+            <label>Note <input id="payment-note" /></label>
+            <div class="form-actions">
+              <button type="submit">Add Payment</button>
+            </div>
+          </form>
+          <div class="table-wrap">
+            <table id="payment-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Method</th>
+                  <th>Note</th>
+                  <th>Receipt</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="reports" class="view">
+          <h2>Reports</h2>
+          <div class="general-grid">
+            <article class="card">
+              <h3>Fee Defaulters</h3>
+              <ul id="defaulters-list"></ul>
+            </article>
+            <article class="card">
+              <h3>Batch-wise Report</h3>
+              <ul id="batch-report-list"></ul>
+            </article>
+            <article class="card">
+              <h3>Country-wise Report</h3>
+              <ul id="country-report-list"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="logs" class="view">
+          <h2>Activity Logs</h2>
+          <div class="table-wrap">
+            <table id="logs-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Actor</th>
+                  <th>Action</th>
+                  <th>Entity</th>
+                  <th>Entity ID</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="profile" class="view">
+          <h2>User Profile</h2>
+          <form id="profile-form" class="form-grid">
+            <label>Username <input id="profile-username" disabled /></label>
+            <label>Role <input id="profile-role" disabled /></label>
+            <label>Full Name <input id="profile-full-name" /></label>
+            <label>Email <input id="profile-email" type="email" /></label>
+            <label>Phone <input id="profile-phone" /></label>
+            <div class="form-actions">
+              <button type="submit">Save Profile</button>
+            </div>
+          </form>
+
+          <form id="password-form" class="form-grid">
+            <label>Current Password <input id="current-password" type="password" required /></label>
+            <label>New Password <input id="new-password" type="password" required /></label>
+            <div class="form-actions">
+              <button type="submit">Change Password</button>
+            </div>
+          </form>
+        </section>
+        <section id="settings" class="view">
+          <h2>Settings</h2>
+          <form id="settings-form" class="form-grid">
+            <label>Theme
+              <select id="setting-theme">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="ocean">Ocean</option>
+              </select>
+            </label>
+            <label>Layout Density
+              <select id="setting-density">
+                <option value="comfortable">Comfortable</option>
+                <option value="compact">Compact</option>
+              </select>
+            </label>
+            <label>Default Landing Page
+              <select id="setting-landing-view">
+                <option value="dashboard">Dashboard</option>
+                <option value="members">Members</option>
+                <option value="browse">Browse</option>
+                <option value="reports">Reports</option>
+              </select>
+            </label>
+            <label>Table Rows Per Page
+              <select id="setting-rows">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <div class="form-actions">
+              <button type="submit">Save Settings</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="fees" class="view">
+          <h2>Fees</h2>
+          <form id="fees-form" class="form-grid">
+            <label>Member
+              <select id="fees-member-id" required></select>
+            </label>
+            <label>Membership Fee <input id="membershipFee" type="number" min="0" /></label>
+            <label>Monthly / Annual Fee
+              <select id="subscriptionType">
+                <option value="monthly">Monthly</option>
+                <option value="annual">Annual</option>
+              </select>
+            </label>
+            <label>Subscription Amount <input id="subscriptionAmount" type="number" min="0" /></label>
+            <label>Paid Up To <input id="paidUptoDate" type="date" /></label>
+            <div class="form-actions">
+              <button type="submit">Save Fees</button>
+            </div>
+          </form>
+
+          <h3>Fee Records</h3>
+          <div class="table-wrap">
+            <table id="fees-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Membership Fee</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Paid Up To</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="general" class="view">
+          <h2>General</h2>
+          <div class="general-grid">
+            <article class="card">
+              <h3>Batches in Year Order</h3>
+              <ul id="batch-list"></ul>
+            </article>
+            <article class="card">
+              <h3>Names of Graduates in Every Batch</h3>
+              <div id="graduates-by-batch"></div>
+            </article>
+            <article class="card">
+              <h3>Members Who Taught at College</h3>
+              <ul id="taught-before-list"></ul>
+            </article>
+            <article class="card">
+              <h3>Members Teaching at College</h3>
+              <ul id="currently-teaching-list"></ul>
+            </article>
+          </div>
+        </section>
+
+        <section id="browse" class="view">
+          <h2>Browse / Reference</h2>
+          <p>Search any single item and get matching members instantly.</p>
+
+          <form id="browse-form" class="browse-grid">
+            <label>Keyword
+              <input id="browse-keyword" placeholder="Name, NIC, Membership No, Place of work..." />
+            </label>
+            <label>Country Visited
+              <input id="browse-country" placeholder="Australia" />
+            </label>
+            <label>College
+              <input id="browse-college" placeholder="AAA College" />
+            </label>
+            <label>District
+              <input id="browse-district" placeholder="Kandy" />
+            </label>
+            <label>Teaching Status
+              <select id="browse-teaching-status">
+                <option value="">Any</option>
+                <option value="taught_before">Taught Before</option>
+                <option value="currently_teaching">Currently Teaching</option>
+              </select>
+            </label>
+            <label>Batch Year
+              <input id="browse-batch-year" type="number" />
+            </label>
+            <label>Award
+              <input id="browse-award" placeholder="Best Teacher" />
+            </label>
+            <label>Qualification Year
+              <input id="browse-year" type="number" />
+            </label>
+            <label>Payment Status
+              <select id="browse-payment-status">
+                <option value="">Any</option>
+                <option value="paid">Paid</option>
+                <option value="unpaid">Unpaid</option>
+              </select>
+            </label>
+            <button type="submit">Browse</button>
+            <button type="button" class="secondary" id="browse-reset">Reset</button>
+          </form>
+
+          <div class="table-wrap">
+            <table id="browse-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Membership No</th>
+                  <th>NIC</th>
+                  <th>Countries</th>
+                  <th>Workplace</th>
+                  <th>Teaching</th>
+                  <th>District</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
